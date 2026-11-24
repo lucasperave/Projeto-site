@@ -1,0 +1,102 @@
+from pathlib import Path
+import zipfile, subprocess, json, os, textwrap
+root=Path("/mnt/data/portal_rick_and_morty_corrigido")
+(root/"css").mkdir(parents=True,exist_ok=True)
+(root/"js").mkdir(parents=True,exist_ok=True)
+html=r'''<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore o universo de Rick and Morty. Pesquise personagens e salve seus favoritos.">
+  <title>Rick and Morty | Multiverse Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+  <div class="background-grid" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="logo" href="#" aria-label="Página inicial Rick and Morty">
+      <span class="logo-mark">R<span>✦</span>M</span>
+      <span class="logo-name">MULTIVERSE<br><b>EXPLORER</b></span>
+    </a>
+    <nav class="main-nav" aria-label="Navegação principal">
+      <a href="#inicio">INÍCIO</a><a href="#personagens">PERSONAGENS</a><a href="#sobre">SOBRE</a>
+    </nav>
+    <a class="api-status" href="https://rickandmortyapi.com/documentation" target="_blank" rel="noopener">
+      <span class="status-light"></span> API CONECTADA <span aria-hidden="true">↗</span>
+    </a>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> ACESSO AO MULTIVERSO AUTORIZADO</p>
+        <h1>THE<br><em>MULTIVERSE</em><br>IS YOURS<span class="title-dot">.</span></h1>
+        <p class="hero-description">Uma viagem por dimensões, personagens e realidades extraordinárias. Explore o universo de Rick and Morty com dados atualizados diretamente da API.</p>
+        <a class="hero-button" href="#personagens">EXPLORAR PERSONAGENS <span>↓</span></a>
+        <div class="hero-footnote"><span>DIMENSION C-137</span><span>● MULTIVERSE ONLINE</span></div>
+      </div>
+      <div class="hero-visual" aria-label="Ilustração abstrata de um portal interdimensional">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="portal-core"><div class="portal-glow"></div><span>R&M</span></div>
+        <span class="planet planet-one"></span><span class="planet planet-two"></span>
+        <div class="dimension-label">UNKNOWN<br><b>DIMENSION</b></div>
+        <span class="coordinate">C-137 / 08.24.1998</span>
+      </div>
+      <div class="hero-scroll">SCROLL TO EXPLORE <span>↓</span></div>
+    </section>
+
+    <section class="characters-section" id="personagens">
+      <div class="section-topline"><span>DATABASE / 001</span><span>RICK AND MORTY UNIVERSE</span></div>
+      <div class="section-heading">
+        <div><p class="eyebrow">CONHEÇA O MULTIVERSO</p><h2>PERSONAGENS<span>.</span></h2></div>
+        <p class="section-description">Encontre seus personagens favoritos<br>entre as infinitas dimensões.</p>
+      </div>
+
+      <div class="control-panel">
+        <label class="search-field" for="searchInput">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="Buscar personagem..." autocomplete="off">
+          <button id="clearSearch" class="clear-search" type="button" aria-label="Limpar pesquisa" title="Limpar pesquisa">×</button>
+        </label>
+        <label class="select-field" for="statusFilter"><span>STATUS</span>
+          <select id="statusFilter">
+            <option value="">Todos</option><option value="Alive">Vivo</option>
+            <option value="Dead">Morto</option><option value="unknown">Desconhecido</option>
+          </select>
+        </label>
+        <button id="searchButton" class="action-button" type="button">BUSCAR <span>↗</span></button>
+        <button id="favoritesButton" class="favorites-toggle" type="button" aria-pressed="false">
+          <span>♥</span> FAVORITOS <b id="favoritesCount">0</b>
+        </button>
+      </div>
+
+      <div class="list-heading"><span id="resultCount">CONECTANDO AO BANCO DE DADOS...</span><span id="pageIndicator"></span></div>
+      <div id="characterGrid" class="character-grid" aria-live="polite"></div>
+      <div id="message" class="message" role="status">
+        <span class="loader"></span><strong>Estabelecendo conexão interdimensional...</strong>
+        <small>Buscando personagens na API</small>
+      </div>
+      <div class="pagination">
+        <button id="prevButton" class="page-button" type="button" disabled>← ANTERIOR</button>
+        <span id="pageLabel">PÁGINA 1</span>
+        <button id="nextButton" class="page-button" type="button" disabled>PRÓXIMA →</button>
+      </div>
+    </section>
+
+    <section class="about-section" id="sobre">
+      <div class="about-symbol">✳</div>
+      <div class="about-copy"><p class="eyebrow">SOBRE A EXPERIÊNCIA</p><h2>ONE API.<br><em>INFINITE POSSIBILITIES.</em></h2>
+        <p>Este projeto utiliza HTML, CSS e JavaScript para consumir a Rick and Morty API. Cada personagem é carregado dinamicamente, permitindo explorar informações reais do universo da série.</p>
+      </div>
+      <div class="about-numbers"><div><b>100%</b><span>DINÂMICO</span></div><div><b>API</b><span>REST</span></div><div><b>∞</b><span>DIMENSÕES</span></div></div>
+    </section>
+  </main>
+
+  <footer><span>© 2026 MULTIVERSE EXPLORER</span><span>BUILT WITH HTML · CSS · JAVASCRIPT</span><a href="https://rickandmortyapi.com/" target="_blank" rel="noopener">POWERED BY RICK AND MORTY API ↗</a></footer>
+</body>
+</html>'''
